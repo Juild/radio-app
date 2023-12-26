@@ -35,11 +35,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     final paletteGenerator = await PaletteGenerator.fromImageProvider(
       networkImage,
       size: const Size(300, 300),
-    ).timeout(const Duration(milliseconds: 100), onTimeout: () {
-      print('timeout');
+    ).timeout(const Duration(seconds: 1), onTimeout: () {
       return PaletteGenerator.fromColors([PaletteColor(fallbackColor, 1)]);
     });
-
-    return paletteGenerator.darkVibrantColor?.color ?? Colors.red;
+    return paletteGenerator.colors.first;
   }
 }

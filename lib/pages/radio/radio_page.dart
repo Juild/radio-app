@@ -1,9 +1,16 @@
 import 'package:audioplayers/audioplayers.dart';
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:radio_app/pages/home/widgets/radio_image.dart';
 
+@RoutePage()
 class RadioPage extends StatefulWidget {
-  const RadioPage({super.key, required this.title});
+  final String url;
   final String title;
+  final RadioDecorationImage image;
+  final Color backGroundcolor;
+  const RadioPage(
+      {super.key, required this.url, required this.title, required this.image, required this.backGroundcolor});
 
   @override
   State<RadioPage> createState() => _MyHomePageState();
@@ -12,7 +19,7 @@ class RadioPage extends StatefulWidget {
 class _MyHomePageState extends State<RadioPage> {
   bool isPlaying = false;
   final player = AudioPlayer();
-  void _incrementCounter() async {
+  void _playRadio() async {
     if (isPlaying) {
       await player.pause();
       setState(() {
@@ -26,7 +33,7 @@ class _MyHomePageState extends State<RadioPage> {
         });
         return;
       }
-      await player.play(UrlSource("https://80sexitos.stream.laut.fm/80sexitos"));
+      await player.play(UrlSource(widget.url));
       setState(() {
         isPlaying = true;
       });
@@ -35,15 +42,40 @@ class _MyHomePageState extends State<RadioPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+    return WillPopScope(
+      onWillPop: () async {
+        player.stop();
+        player.dispose();
+        return true;
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [widget.backGroundcolor, Colors.black], // Replace with your desired colors
+          ),
+        ),
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text(widget.title),
+            backgroundColor: Colors.transparent,
+          ),
+          backgroundColor: Colors.transparent,
+          body: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              widget.image,
+              Center(
+                child: FloatingActionButton(
+                  onPressed: _playRadio,
+                  tooltip: 'Increment',
+                  child: isPlaying ? const Icon(Icons.pause) : const Icon(Icons.play_arrow),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

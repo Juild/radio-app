@@ -1,11 +1,15 @@
 import 'dart:math';
 
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg_provider/flutter_svg_provider.dart';
 import 'package:radio_app/common/models/country.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:radio_app/router/router.dart';
 import 'bloc/home_bloc.dart';
+import 'widgets/radio_image.dart';
+import 'package:animated_custom_dropdown/custom_dropdown.dart';
 
+@RoutePage()
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
@@ -25,16 +29,18 @@ class _HomePage extends StatefulWidget {
   State<_HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<_HomePage> {
+class _HomePageState extends State<_HomePage> with SingleTickerProviderStateMixin {
   double _height = 10.0;
   Color _beginColor = Colors.red;
   List<Color> _colors = [];
   final _controller = FixedExtentScrollController();
   final random = Random();
+  final textEditingController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
+
     _controller.addListener(_setBackgroundColor);
   }
 
@@ -105,66 +111,56 @@ class _HomePageState extends State<_HomePage> {
                             ),
                           ],
                         ),
-                        child: DropdownMenu<Country>(
-                          inputDecorationTheme: InputDecorationTheme(
-                            filled: true,
-                            fillColor: Colors.white,
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide.none,
-                            ),
-                          ),
-                          hintText: 'Select a country',
-                          menuHeight: 240,
-                          menuStyle: const MenuStyle(
-                            padding: MaterialStatePropertyAll(EdgeInsets.all(0)),
-                            surfaceTintColor: MaterialStatePropertyAll(Colors.white),
-                            backgroundColor: MaterialStatePropertyAll(Colors.white),
-                            shape: MaterialStatePropertyAll(
-                              RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.vertical(top: Radius.circular(8), bottom: Radius.circular(8)),
-                              ),
-                            ),
-                          ),
-                          dropdownMenuEntries: Country.values
-                              .map(
-                                (country) => DropdownMenuEntry<Country>(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                          child: DropdownButton<Country>(
+                            underline: const SizedBox(),
+                            borderRadius: BorderRadius.circular(8),
+                            hint: const Text('Select a country'),
+                            menuMaxHeight: 240,
+                            items: Country.values
+                                .map(
+                                  (country) => DropdownMenuItem<Country>(
                                     value: country,
-                                    label: country.toStringX(),
-                                    style: const ButtonStyle(
-                                        textStyle: MaterialStatePropertyAll(TextStyle(fontSize: 14)))),
-                              )
-                              .toList(),
-                          onSelected: (selectedCountry) => currentBloc.add(CountrySelected(country: selectedCountry!)),
+                                    child: Text(country.toStringX()),
+                                  ),
+                                )
+                                .toList(),
+                            onChanged: (selectedCountry) => currentBloc.add(CountrySelected(country: selectedCountry!)),
+                          ),
                         ),
                       ),
                       AnimatedContainer(
                         duration: const Duration(milliseconds: 500),
                         height: _height,
-                        width: 300,
                         child: ListWheelScrollView(
-                          squeeze: 1.5,
+                          squeeze: 1,
                           controller: _controller,
                           itemExtent: 100,
-                          diameterRatio: 1,
+                          diameterRatio: 1.5,
                           children: state.radios
                               .asMap()
                               .entries
-                              .map((entry) => Container(
-                                    decoration: BoxDecoration(
-                                      color: _colors[entry.key],
-                                      borderRadius: BorderRadius.circular(16),
-                                      image: entry.value.favicon == ''
-                                          ? const DecorationImage(image: Svg('assets/placeholder_radio.svg'))
-                                          : DecorationImage(
-                                              image: NetworkImage(entry.value.favicon),
-                                              fit: BoxFit.contain,
-                                              onError: (exception, stackTrace) => print(exception.toString())),
-                                    ),
-                                    width: 300,
-                                    height: 300,
-                                  ))
+                              .map(
+                                (entry) => InkWell(
+                                  onTap: () {
+                                    print(_colors[entry.key]);
+                                    print(entry.value.favicon);
+                                    context.router.push(RadioRoute(
+                                        backGroundcolor: _colors[entry.key],
+                                        title: entry.value.name,
+                                        url: entry.value.url,
+                                        image: RadioDecorationImage(
+                                          url: entry.value.favicon,
+                                          color: _colors[entry.key],
+                                        )));
+                                  },
+                                  child: RadioDecorationImage(
+                                    url: entry.value.favicon,
+                                    color: _colors[entry.key],
+                                  ),
+                                ),
+                              )
                               .toList(),
                         ),
                       ),

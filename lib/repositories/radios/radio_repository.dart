@@ -17,9 +17,7 @@ class RadioRepository implements IRadioRepository {
     );
     final response = await http.get(url);
     if (response.statusCode == 200) {
-      List<dynamic> body = jsonDecode(response.body);
-      print(body[0]['tags']);
-      print(body[0]['tags'].runtimeType);
+      List<dynamic> body = json.decode(utf8.decode(response.bodyBytes));
       return body.map((e) => AppRadio.fromJson(e)).toList();
     } else {
       throw Exception('Failed to load radios');
