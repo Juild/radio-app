@@ -144,6 +144,7 @@ class _HomePageState extends State<_HomePage> with SingleTickerProviderStateMixi
                               .map(
                                 (entry) => InkWell(
                                   onTap: () {
+                                    print('test');
                                     context.router.push(RadioRoute(
                                         backGroundcolor: _colors[entry.key],
                                         title: entry.value.name,
