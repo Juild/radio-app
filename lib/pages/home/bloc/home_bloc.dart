@@ -8,8 +8,11 @@ import 'package:radio_app/repositories/radios/radio_repository.dart';
 import '../../../common/models/country.dart';
 import '../../../injection/locator.dart';
 import '../../../repositories/radios/models/radio.dart';
+import 'package:logger/logger.dart';
 part 'home_event.dart';
 part 'home_state.dart';
+
+final logger = Logger();
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final IRadioRepository _radioRepository = locator<IRadioRepository>();
@@ -18,8 +21,12 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       switch (event) {
         case CountrySelected():
           emit(state.copyWith(status: Status.loading, radios: []));
-          final radios = await _radioRepository.getRadios(countryCode: event.country.isoCode);
-          emit(state.copyWith(status: Status.loaded, countrySelected: event.country, radios: radios));
+          final result = await _radioRepository.getRadios(countryCode: event.country.isoCode);
+          result.fold((l) {
+            emit(state.copyWith(status: Status.initial));
+            logger.e('Error retrieving radios: ${l.message}');
+          }, (radios) => emit(state.copyWith(status: Status.loaded, countrySelected: event.country, radios: radios)));
+
         case ColorLoaded():
           emit(state.copyWith(gradientColor: event.color));
       }
