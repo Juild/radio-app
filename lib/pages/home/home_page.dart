@@ -106,6 +106,7 @@ class _HomePageState extends State<_HomePage> with SingleTickerProviderStateMixi
                             borderRadius: BorderRadius.circular(8),
                             hint: const Text('Select a country'),
                             menuMaxHeight: 240,
+                            value: state.countrySelected,
                             items: Country.values
                                 .map(
                                   (country) => DropdownMenuItem<Country>(
