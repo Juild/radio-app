@@ -7,7 +7,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:radio_app/router/router.dart';
 import 'bloc/home_bloc.dart';
 import 'widgets/radio_image.dart';
-import 'package:animated_custom_dropdown/custom_dropdown.dart';
 
 @RoutePage()
 class HomePage extends StatelessWidget {
@@ -31,8 +30,6 @@ class _HomePage extends StatefulWidget {
 
 class _HomePageState extends State<_HomePage> with SingleTickerProviderStateMixin {
   double _height = 10.0;
-  Color _beginColor = Colors.red;
-  List<Color> _colors = [];
   final _controller = FixedExtentScrollController();
   final random = Random();
   final textEditingController = TextEditingController();
@@ -40,20 +37,17 @@ class _HomePageState extends State<_HomePage> with SingleTickerProviderStateMixi
   @override
   void initState() {
     super.initState();
-
-    _controller.addListener(_setBackgroundColor);
   }
 
   @override
   void dispose() {
-    _controller.removeListener(_setBackgroundColor);
+    _controller.dispose();
     super.dispose();
   }
 
   void _blocListener(BuildContext context, HomeState state) {
     if (state.status == Status.loaded) {
       setState(() {
-        _colors = state.colors;
         _height = 500;
       });
     } else {
@@ -61,12 +55,6 @@ class _HomePageState extends State<_HomePage> with SingleTickerProviderStateMixi
         _height = 10;
       });
     }
-  }
-
-  void _setBackgroundColor() {
-    setState(() {
-      _beginColor = _colors[_controller.selectedItem];
-    });
   }
 
   @override
@@ -81,7 +69,7 @@ class _HomePageState extends State<_HomePage> with SingleTickerProviderStateMixi
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [_beginColor, Colors.black], // Replace with your desired colors
+              colors: [state.gradientColor, Colors.black], // Replace with your desired colors
             ),
           ),
           child: Scaffold(
@@ -142,22 +130,12 @@ class _HomePageState extends State<_HomePage> with SingleTickerProviderStateMixi
                               .asMap()
                               .entries
                               .map(
-                                (entry) => InkWell(
-                                  onTap: () {
-                                    print('test');
-                                    context.router.push(RadioRoute(
-                                        backGroundcolor: _colors[entry.key],
-                                        title: entry.value.name,
-                                        url: entry.value.url,
-                                        image: RadioDecorationImage(
-                                          url: entry.value.favicon,
-                                          color: _colors[entry.key],
-                                        )));
-                                  },
-                                  child: RadioDecorationImage(
-                                    url: entry.value.favicon,
-                                    color: _colors[entry.key],
-                                  ),
+                                (entry) => RadioDecorationImage(
+                                  name: entry.value.name,
+                                  idx: entry.key,
+                                  faviconUrl: entry.value.favicon,
+                                  controller: _controller,
+                                  url: entry.value.url,
                                 ),
                               )
                               .toList(),

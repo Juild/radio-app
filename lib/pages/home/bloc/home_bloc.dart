@@ -19,8 +19,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         case CountrySelected():
           emit(state.copyWith(status: Status.loading, radios: []));
           final radios = await _radioRepository.getRadios(countryCode: event.country.isoCode);
-          final colors = await Future.wait(radios.map((radio) => fetchImage(radio, NetworkImage(radio.favicon))));
-          emit(state.copyWith(status: Status.loaded, countrySelected: event.country, radios: radios, colors: colors));
+          emit(state.copyWith(status: Status.loaded, countrySelected: event.country, radios: radios));
+        case ColorLoaded():
+          emit(state.copyWith(gradientColor: event.color));
       }
     });
   }

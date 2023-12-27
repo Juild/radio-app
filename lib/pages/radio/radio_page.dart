@@ -1,16 +1,24 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:radio_app/pages/home/widgets/radio_image.dart';
+import 'package:flutter_svg_provider/flutter_svg_provider.dart';
 
 @RoutePage()
 class RadioPage extends StatefulWidget {
   final String url;
   final String title;
-  final RadioDecorationImage image;
-  final Color backGroundcolor;
-  const RadioPage(
-      {super.key, required this.url, required this.title, required this.image, required this.backGroundcolor});
+  final String faviconUrl;
+  final Color gradientColor;
+  final ImageProvider image;
+  final fallbackImage = const Svg('assets/placeholder_radio.svg');
+  const RadioPage({
+    super.key,
+    required this.url,
+    required this.title,
+    required this.gradientColor,
+    required this.faviconUrl,
+    required this.image,
+  });
 
   @override
   State<RadioPage> createState() => _MyHomePageState();
@@ -18,7 +26,12 @@ class RadioPage extends StatefulWidget {
 
 class _MyHomePageState extends State<RadioPage> {
   bool isPlaying = false;
+  bool errorOnFetchImage = false;
+
   final player = AudioPlayer();
+
+  bool connecting = false;
+
   void _playRadio() async {
     if (isPlaying) {
       await player.pause();
@@ -33,8 +46,12 @@ class _MyHomePageState extends State<RadioPage> {
         });
         return;
       }
+      setState(() {
+        connecting = true;
+      });
       await player.play(UrlSource(widget.url));
       setState(() {
+        connecting = false;
         isPlaying = true;
       });
     }
@@ -53,11 +70,17 @@ class _MyHomePageState extends State<RadioPage> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [widget.backGroundcolor, Colors.black], // Replace with your desired colors
+            colors: [widget.gradientColor, Colors.black], // Replace with your desired colors
           ),
         ),
         child: Scaffold(
           appBar: AppBar(
+            leading: IconButton(
+              icon: const Icon(Icons.close),
+              onPressed: () {
+                context.router.pop();
+              },
+            ),
             title: Text(widget.title),
             backgroundColor: Colors.transparent,
           ),
@@ -65,12 +88,27 @@ class _MyHomePageState extends State<RadioPage> {
           body: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              widget.image,
+              Container(
+                decoration: BoxDecoration(
+                  color: widget.gradientColor,
+                  borderRadius: BorderRadius.circular(16),
+                  image: DecorationImage(image: widget.image),
+                ),
+                width: 300,
+                height: 300,
+              ),
               Center(
                 child: FloatingActionButton(
                   onPressed: _playRadio,
-                  tooltip: 'Increment',
-                  child: isPlaying ? const Icon(Icons.pause) : const Icon(Icons.play_arrow),
+                  child: () {
+                    if (isPlaying) {
+                      return const Icon(Icons.pause);
+                    } else if (!isPlaying && connecting) {
+                      return const CircularProgressIndicator();
+                    } else {
+                      return const Icon(Icons.play_arrow);
+                    }
+                  }(),
                 ),
               ),
             ],

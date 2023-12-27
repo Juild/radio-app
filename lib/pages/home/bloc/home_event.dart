@@ -7,3 +7,8 @@ final class CountrySelected extends HomeEvent {
 
   CountrySelected({required this.country});
 }
+
+final class ColorLoaded extends HomeEvent {
+  final Color color;
+  ColorLoaded(this.color);
+}

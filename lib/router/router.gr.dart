@@ -29,8 +29,9 @@ abstract class _$AppRouter extends RootStackRouter {
           key: args.key,
           url: args.url,
           title: args.title,
+          gradientColor: args.gradientColor,
+          faviconUrl: args.faviconUrl,
           image: args.image,
-          backGroundcolor: args.backGroundcolor,
         ),
       );
     },
@@ -58,8 +59,9 @@ class RadioRoute extends PageRouteInfo<RadioRouteArgs> {
     Key? key,
     required String url,
     required String title,
-    required RadioDecorationImage image,
-    required Color backGroundcolor,
+    required Color gradientColor,
+    required String faviconUrl,
+    required ImageProvider<Object> image,
     List<PageRouteInfo>? children,
   }) : super(
           RadioRoute.name,
@@ -67,8 +69,9 @@ class RadioRoute extends PageRouteInfo<RadioRouteArgs> {
             key: key,
             url: url,
             title: title,
+            gradientColor: gradientColor,
+            faviconUrl: faviconUrl,
             image: image,
-            backGroundcolor: backGroundcolor,
           ),
           initialChildren: children,
         );
@@ -83,8 +86,9 @@ class RadioRouteArgs {
     this.key,
     required this.url,
     required this.title,
+    required this.gradientColor,
+    required this.faviconUrl,
     required this.image,
-    required this.backGroundcolor,
   });
 
   final Key? key;
@@ -93,12 +97,14 @@ class RadioRouteArgs {
 
   final String title;
 
-  final RadioDecorationImage image;
+  final Color gradientColor;
 
-  final Color backGroundcolor;
+  final String faviconUrl;
+
+  final ImageProvider<Object> image;
 
   @override
   String toString() {
-    return 'RadioRouteArgs{key: $key, url: $url, title: $title, image: $image, backGroundcolor: $backGroundcolor}';
+    return 'RadioRouteArgs{key: $key, url: $url, title: $title, gradientColor: $gradientColor, faviconUrl: $faviconUrl, image: $image}';
   }
 }
